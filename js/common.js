@@ -47,28 +47,6 @@ $(document).ready(function() {
         }
     });
 
-    $('#urlBtn').click(function() {
-        var pageUrl = $('#selectBroken :selected').val();
-        var carMark = $('#selectMark :selected').val();
-        var carModel = $('#selectModel :selected').val();
-        $('#selectBroken, #selectMark, #selectModel').parent().removeClass('error');
-        if (pageUrl == 'Заголовок') {
-            $('#selectBroken').parent().addClass('error');
-            return;
-        }
-        if (carMark == 'Заголовок') {
-            $('#selectMark').parent().addClass('error');
-            return;
-        }
-        if (carModel == 'Заголовок') {
-            $('#selectModel').parent().addClass('error');
-            return;
-        } else {
-            var urlGet = pageUrl + carsObj[carMark].modelUrl[carModel];
-            document.location.href = "http://" + urlGet;
-        }
-
-    });
 
     // fixed menu *
     $(function() {
@@ -84,11 +62,39 @@ $(document).ready(function() {
     });
 
     // mobile menu *
-    $('.burger').click(function() {
-        $(this).toggleClass('active');
-        $('.header-mobile__hidden').slideToggle();
-        $('body').toggleClass('hidden');
+    // $('.burger').click(function() {
+    //     $(this).toggleClass('active');
+    //     $('.header-mobile__hidden').slideToggle();
+    //     $('body').toggleClass('hidden');
+    // });
+
+
+    $(document).ready(function() {
+        // Открытие/закрытие меню по клику на бургер
+        $('.burger').click(function(event) {
+            event.stopPropagation(); // Останавливаем всплытие события, чтобы не срабатывал click на документ
+            $(this).toggleClass('active');
+            $('.header-mobile__hidden').slideToggle();
+            $('body').toggleClass('hidden');
+        });
+    
+        // Закрытие меню при клике вне его
+        $(document).click(function(event) {
+            // Проверяем, был ли клик вне меню и вне бургера
+            if (!$(event.target).closest('.header-mobile__hidden, .burger').length) {
+                $('.burger').removeClass('active');
+                $('.header-mobile__hidden').slideUp();
+                $('body').removeClass('hidden');
+            }
+        });
+    
+        // Останавливаем всплытие события, если клик был внутри меню
+        $('.header-mobile__hidden').click(function(event) {
+            event.stopPropagation();
+        });
     });
+
+
 
     // custom select *
     $('.select-custom select').select2();
@@ -214,87 +220,87 @@ $(document).ready(function() {
     });
 
     // map Yandex *
-    ymaps.ready(init);
+    // ymaps.ready(init);
 
-    function init() {
-        var center = [55.753220, 37.715471];
-        var myMap = new ymaps.Map('map', {
-            controls: [],
-            center: center,
-            zoom: 12
-        }, {
-            searchControlProvider: 'yandex#search'
-        });
-        var myPlacemark = new ymaps.Placemark(center, {
-            balloonContent: 'Авиамоторная, 12',
-            hintContent: 'Авиамоторная, 12'
-        }, {
-            iconLayout: 'default#image'
-        });
-        myMap.geoObjects.add(myPlacemark);
+    // function init() {
+    //     var center = [55.753220, 37.715471];
+    //     var myMap = new ymaps.Map('map', {
+    //         controls: [],
+    //         center: center,
+    //         zoom: 12
+    //     }, {
+    //         searchControlProvider: 'yandex#search'
+    //     });
+    //     var myPlacemark = new ymaps.Placemark(center, {
+    //         balloonContent: 'Авиамоторная, 12',
+    //         hintContent: 'Авиамоторная, 12'
+    //     }, {
+    //         iconLayout: 'default#image'
+    //     });
+    //     myMap.geoObjects.add(myPlacemark);
 
-        $('.arrival-btn').click(function() {
-            var checkVal = $('.time-inp').val();
-            if (checkVal == '') {
-                var geolocation = ymaps.geolocation;
-                geolocation.get({
-                    provider: 'yandex',
-                    mapStateAutoApply: true
-                }).then(function(result) {
-                    // Получаем локацию пользователя при клике на иконку *
-                    var geoUser = result.geoObjects.position;
+    //     $('.arrival-btn').click(function() {
+    //         var checkVal = $('.time-inp').val();
+    //         if (checkVal == '') {
+    //             var geolocation = ymaps.geolocation;
+    //             geolocation.get({
+    //                 provider: 'yandex',
+    //                 mapStateAutoApply: true
+    //             }).then(function(result) {
+    //                 // Получаем локацию пользователя при клике на иконку *
+    //                 var geoUser = result.geoObjects.position;
 
-                    var multiRoute = new ymaps.multiRouter.MultiRoute({
-                        referencePoints: [
-                            [55.753220, 37.715471],
-                            geoUser
-                        ],
-                        params: {
-                            routingMode: "auto",
-                            avoidTrafficJams: true
-                        }
-                    }, {
-                        boundsAutoApply: true,
-                    });
-                    // Добавление маршрута на карту.
-                    myMap.geoObjects.add(multiRoute);
+    //                 var multiRoute = new ymaps.multiRouter.MultiRoute({
+    //                     referencePoints: [
+    //                         [55.753220, 37.715471],
+    //                         geoUser
+    //                     ],
+    //                     params: {
+    //                         routingMode: "auto",
+    //                         avoidTrafficJams: true
+    //                     }
+    //                 }, {
+    //                     boundsAutoApply: true,
+    //                 });
+    //                 // Добавление маршрута на карту.
+    //                 myMap.geoObjects.add(multiRoute);
 
-                    // Подписка на событие обновления данных маршрута.
-                    multiRoute.model.events.add('requestsuccess', function() {
-                        // Получение ссылки на активный маршрут.
-                        var activeRoute = multiRoute.getActiveRoute();
-                        // Вывод информации о маршруте.
-                        // console.log("Длина: " + activeRoute.properties.get("distance").text);
-                        // console.log("Время прохождения: " + activeRoute.properties.get("duration").text);
-                        $('.time-inp').val("Примерное время: " + activeRoute.properties.get("duration").text);
-                        // Для автомобильных маршрутов можно вывести
-                        // информацию о перекрытых участках.
-                        if (activeRoute.properties.get("blocked")) {
-                            console.log("На маршруте имеются участки с перекрытыми дорогами.");
-                        }
-                    });
-                    // Добавление маршрута на карту.
-                    myMap.geoObjects.add(multiRoute);
-                });
-            }
-            return;
-        });
+    //                 // Подписка на событие обновления данных маршрута.
+    //                 multiRoute.model.events.add('requestsuccess', function() {
+    //                     // Получение ссылки на активный маршрут.
+    //                     var activeRoute = multiRoute.getActiveRoute();
+    //                     // Вывод информации о маршруте.
+    //                     // console.log("Длина: " + activeRoute.properties.get("distance").text);
+    //                     // console.log("Время прохождения: " + activeRoute.properties.get("duration").text);
+    //                     $('.time-inp').val("Примерное время: " + activeRoute.properties.get("duration").text);
+    //                     // Для автомобильных маршрутов можно вывести
+    //                     // информацию о перекрытых участках.
+    //                     if (activeRoute.properties.get("blocked")) {
+    //                         console.log("На маршруте имеются участки с перекрытыми дорогами.");
+    //                     }
+    //                 });
+    //                 // Добавление маршрута на карту.
+    //                 myMap.geoObjects.add(multiRoute);
+    //             });
+    //         }
+    //         return;
+    //     });
 
-        if (window.matchMedia('(min-width: 768px)').matches) {
-            var zoomControl = new ymaps.control.ZoomControl({
-                options: {
-                    size: "small"
-                }
-            });
-            myMap.controls.add(zoomControl, {
-                position: {
-                    right: '40px',
-                    top: '180px'
-                }
-            });
-        }
+    //     if (window.matchMedia('(min-width: 768px)').matches) {
+    //         var zoomControl = new ymaps.control.ZoomControl({
+    //             options: {
+    //                 size: "small"
+    //             }
+    //         });
+    //         myMap.controls.add(zoomControl, {
+    //             position: {
+    //                 right: '40px',
+    //                 top: '180px'
+    //             }
+    //         });
+    //     }
 
-        myMap.behaviors.disable('scrollZoom');
-    }
+    //     myMap.behaviors.disable('scrollZoom');
+    // }
 
 });
