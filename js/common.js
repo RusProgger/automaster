@@ -1,6 +1,21 @@
 $(document).ready(function() {
     // Объект с данными моделей и URL *
     var carsObj = {
+        Mitsubishi: {
+            model: ['ASX', 'Galant '],
+            modelUrl: {
+                ASX: 'asx/invite',
+                Galant: 'galant/invite2'
+            }
+        },
+        Toyota: {
+            model: ['Camry', 'Avensis'],
+            modelUrl: {
+                Camry: 'camry/1',
+                Anvensis: 'anvensis/2'
+            }
+        },
+
         Audi: {
             model: ['A4', 'Q5'],
             modelUrl: {
