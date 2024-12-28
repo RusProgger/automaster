@@ -61,15 +61,29 @@ $(document).ready(function() {
         });
     });
 
-    // mobile menu *
-    // $('.burger').click(function() {
-    //     $(this).toggleClass('active');
-    //     $('.header-mobile__hidden').slideToggle();
-    //     $('body').toggleClass('hidden');
-    // });
+  
 
 
     $(document).ready(function() {
+        // Плавный скролл при клике на ссылку с якорем
+        $('a[href^="#"]').click(function(event) {
+            event.preventDefault(); // Отменяем стандартное поведение перехода по якорю
+        
+            var target = $(this).attr('href'); // Получаем значение атрибута href (якорь)
+            
+            // Плавная прокрутка к якорю
+            $('html, body').animate({
+                scrollTop: $(target).offset().top
+            }, 1000); // 1000 - это длительность анимации (в миллисекундах)
+    
+            // Закрытие меню после клика на ссылку
+            if ($('.burger').hasClass('active')) {
+                $('.burger').removeClass('active');
+                $('.header-mobile__hidden').slideUp();
+                $('body').removeClass('hidden');
+            }
+        });
+    
         // Открытие/закрытие меню по клику на бургер
         $('.burger').click(function(event) {
             event.stopPropagation(); // Останавливаем всплытие события, чтобы не срабатывал click на документ
@@ -93,6 +107,8 @@ $(document).ready(function() {
             event.stopPropagation();
         });
     });
+
+
 
 
 
